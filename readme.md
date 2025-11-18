@@ -17,7 +17,6 @@ Clone the repository and install in editable mode:
 
 ```bash
 git clone https://github.com/NLP-UMUTeam/umuteam-speech-emotion
-cd speech_emotion
 pip install -e .
 ```
 
