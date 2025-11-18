@@ -58,6 +58,16 @@ speech-emotion \
   --model-config model.json
 ```
 
+or Text-only usage (no audio, no Whipser for transcription)
+
+```
+speech-emotion \
+  --text "I am very happy today" \
+  --language en \
+  --mode text \
+  --model-config model.json
+```
+
 ### Audio-only (Wav2Vec2-BERT, English)
 
 ```
@@ -95,6 +105,19 @@ speech-emotion \
   --audio audio.wav \
   --language es \
   --mode multihead \
+  --model-config model.json
+```
+
+### Multimodal with external transcript
+
+For multimodal modes, you can pass both audio and a precomputed transcript.  If `--text` is provided, Whisper is skipped and the given text is used:
+
+```
+speech-emotion \
+  --audio audio.wav \
+  --text "Estoy muy contento hoy" \
+  --language es \
+  --mode concat \
   --model-config model.json
 ```
 

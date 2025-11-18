@@ -135,13 +135,26 @@ def get_sentence_embedding(text: str, device: torch.device, language: str):
 
 def get_text_emotion(
     model_id: str,
-    audio_path: str,
+    audio_path: str | None,
+    text: str | None,
     device: torch.device,
     language: str,
 ) -> str:
-    text = get_transcription(audio_path, device, language)
+    """
+    Clasificación solo texto.
+
+    - Si `text` no es None -> se usa directamente (NO se llama a Whisper).
+    - Si `text` es None y hay `audio_path` -> se transcribe con Whisper.
+    """
+    if text is not None:
+        transcription = text
+    else:
+        if audio_path is None:
+            raise ValueError("For mode='text' you must provide either audio_path or text.")
+        transcription = get_transcription(audio_path, device, language)
+
     clf = pipeline("text-classification", model=model_id, device=device)
-    out = clf(text)
+    out = clf(transcription)
     return out[0]["label"]
 
 
@@ -226,13 +239,28 @@ def _generic_multimodal_emotion(
     audio_path: str,
     device: torch.device,
     language: str,
-    variant: str,
+    variant: str,  # "concat" | "mean" | "multihead"
+    text: str | None = None,
 ) -> str:
+    """
+    Multimodal (audio + texto).
+
+    - Siempre requiere `audio_path`.
+    - Si `text` no es None -> se usa como transcripción (NO se llama a Whisper).
+    - Si `text` es None -> se usa Whisper para transcribir el audio.
+    """
+    if audio_path is None:
+        raise ValueError("Multimodal modes require an audio_path.")
+
     label2id, id2label = get_label_maps(language)
 
-    audio_array, sr = librosa.load(audio_path, sr=16000)
+    audio_array, _ = librosa.load(audio_path, sr=16000)
 
-    transcription = get_transcription(audio_path, device, language)
+    if text is not None:
+        transcription = text
+    else:
+        transcription = get_transcription(audio_path, device, language)
+
     sent_emb = get_sentence_embedding(transcription, device, language)
     sent_emb = torch.tensor(sent_emb).unsqueeze(0).to(device)
 
@@ -287,12 +315,12 @@ def _generic_multimodal_emotion(
     return pred_label
 
 
-
 def get_w2vbert_bert_concat_emotion(
     model_id: str,
     audio_path: str,
     device: torch.device,
     language: str,
+    text: str | None = None,
 ) -> str:
     return _generic_multimodal_emotion(
         model_id=model_id,
@@ -300,6 +328,7 @@ def get_w2vbert_bert_concat_emotion(
         device=device,
         language=language,
         variant="concat",
+        text=text,
     )
 
 
@@ -308,6 +337,7 @@ def get_w2vbert_bert_mean_emotion(
     audio_path: str,
     device: torch.device,
     language: str,
+    text: str | None = None,
 ) -> str:
     return _generic_multimodal_emotion(
         model_id=model_id,
@@ -315,6 +345,7 @@ def get_w2vbert_bert_mean_emotion(
         device=device,
         language=language,
         variant="mean",
+        text=text,
     )
 
 
@@ -323,6 +354,7 @@ def get_w2vbert_bert_multihead_emotion(
     audio_path: str,
     device: torch.device,
     language: str,
+    text: str | None = None,
 ) -> str:
     return _generic_multimodal_emotion(
         model_id=model_id,
@@ -330,7 +362,9 @@ def get_w2vbert_bert_multihead_emotion(
         device=device,
         language=language,
         variant="multihead",
+        text=text,
     )
+
 
 
 # ==================================================================
@@ -338,7 +372,8 @@ def get_w2vbert_bert_multihead_emotion(
 # ==================================================================
 
 def predict_emotion(
-    audio_path: str,
+    audio_path: str | None = None,
+    text: str | None = None,
     model_id: str | None = None,
     mode: str = "text",          # "text" | "audio" | "concat" | "mean" | "multihead"
     language: str = "es",        # "es" | "en"
@@ -348,28 +383,41 @@ def predict_emotion(
     """
     API de alto nivel.
 
-    - Si model_id es None, se coge del JSON (model_config_path) según (language, mode).
-    - language elige:
-        - modelo BERT (config.get_default_bert)
-        - clases de models/*.py (es / en)
-        - idioma de Whisper
+    - mode="text":
+        - se puede usar con `audio_path` (Whisper) o con `text` directo.
+        - si solo hay texto (sin audio), este es el único modo permitido.
+    - modos multimodales ("concat", "mean", "multihead"):
+        - requieren `audio_path`.
+        - pueden usar transcripción pasada en `text` para evitar Whisper.
+    - mode="audio":
+        - solo audio (wav2vec2_bert_*), ignora `text`.
     """
     device = get_device(device)
     mode = mode.lower()
     language = language.lower()
 
+    # Validaciones básicas
+    if mode == "text":
+        if audio_path is None and text is None:
+            raise ValueError("For mode='text' you must provide either audio_path or text.")
+    else:
+        # audio / concat / mean / multihead
+        if audio_path is None:
+            raise ValueError(f"Mode='{mode}' requires an audio_path.")
+
     if model_id is None:
         model_id = get_default_model_id(language, mode, model_config_path)
 
     if mode == "text":
-        return get_text_emotion(model_id, audio_path, device, language)
+        return get_text_emotion(model_id, audio_path, text, device, language)
     elif mode == "audio":
         return get_w2vbert_emotion(model_id, audio_path, device, language)
     elif mode == "concat":
-        return get_w2vbert_bert_concat_emotion(model_id, audio_path, device, language)
+        return get_w2vbert_bert_concat_emotion(model_id, audio_path, device, language, text=text)
     elif mode == "mean":
-        return get_w2vbert_bert_mean_emotion(model_id, audio_path, device, language)
+        return get_w2vbert_bert_mean_emotion(model_id, audio_path, device, language, text=text)
     elif mode == "multihead":
-        return get_w2vbert_bert_multihead_emotion(model_id, audio_path, device, language)
+        return get_w2vbert_bert_multihead_emotion(model_id, audio_path, device, language, text=text)
     else:
         raise ValueError(f"Modo no reconocido: {mode}")
+
