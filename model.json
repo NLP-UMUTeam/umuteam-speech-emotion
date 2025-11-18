@@ -1,0 +1,16 @@
+{
+  "es": {
+    "text": "UMUTeam/MarIA-emotion-es",
+    "audio": "UMUTeam/w2v-bert-emotion-es",
+    "concat": "UMUTeam/w2v-bert-beto-concat-emotion-es",
+    "mean": "UMUTeam/w2v-bert-beto-mean-emotion-es",
+    "multihead": "UMUTeam/w2v-bert-beto-multihead-emotion-es"
+  },
+  "en": {
+    "text": "UMUTeam/roberta-emotion-en",
+    "audio": "UMUTeam/w2v-bert-emotion-en",
+    "concat": "UMUTeam/w2v-bert-beto-concat-emotion-en",
+    "mean": "UMUTeam/w2v-bert-beto-mean-emotion-en",
+    "multihead": "UMUTeam/w2v-bert-beto-multihead-emotion-en"
+  }
+}

@@ -1,0 +1,9 @@
+torch
+transformers
+librosa
+soundfile
+datasets
+huggingface-hub
+evaluate
+pandas
+tqdm

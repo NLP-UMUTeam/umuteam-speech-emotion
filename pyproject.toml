@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "speech-emotion"
+version = "0.1.0"
+description = "Multimodal emotion detection (audio+text) in Spanish and English using Whisper, Wav2Vec2-BERT, and Encoder-only models."
+readme = "README.md"
+requires-python = ">=3.9"
+
+authors = [
+  { name = "Ronghao Pan", email = "ronghao.pan@um.es" },
+  { name = "José Antonio Garcí­a-Dí­az", email = "joseantonio.garcia8@um.es" },
+  { name = "{Rafael Valencia-García", email = "valencia@um.es" }
+]
+
+# Dependencias mínimas NECESARIAS para inferencia
+dependencies = [
+  "torch",
+  "transformers>=4.36",
+  "librosa",
+  "soundfile",
+  "datasets",
+  "huggingface-hub",
+  "evaluate",
+  "pandas",
+  "tqdm"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+speech-emotion = "speech_emotion.cli:main"
