@@ -9,7 +9,72 @@ It supports Spanish (`es`) and English (`en`) and provides several inference mod
 - **mean** – Multimodal fusion by mean  
 - **multihead** – Multimodal fusion using multi-head cross-attention  
 
----
+![architecture](figures/architecture.png)
+
+
+
+## UMUTeam Models – Training Details & Performance
+
+All models were trained by UMUTeam using multilingual and multimodal corpora. Below is a summary for transparency and reproducibility.
+
+### Spanish Models
+
+**Dataset**: **Spanish MEACorpus 2023** (speech + transcripts, natural environments)
+ Used for all modes:
+
+- Speech-only
+- Text-only
+- Multimodal
+
+#### Test Performance
+
+| Mode      | Acc.       | W-Precision | W-F1  | Macro-F1  |
+| --------- | ---------- | ----------- | ----- | --------- |
+| Speech    | **88.12%** | 88.32       | 88.14 | 84.48     |
+| Text      | 77.02%     | 77.04       | 76.83 | 69.38     |
+| Concat    | **90.06%** | 90.20       | 90.06 | **87.74** |
+| Mean      | 88.51%     | 88.61       | 88.50 | 84.16     |
+| Multihead | 82.66%     | 82.38       | 82.46 | 75.56     |
+
+### English Models
+
+#### Datasets (speech)
+
+Merged and normalized:
+
+- **RAVDESS**
+- **TESS**
+- **SAVEE**
+
+#### Datasets (text-only)
+
+- **DAIR-AI Emotion**
+- **GoEmotion**
+- **ISEAR**
+- **MELD**
+
+#### Test Performance
+
+| Mode      | Acc.       | W-Precision | W-F1  | Macro-F1  |
+| --------- | ---------- | ----------- | ----- | --------- |
+| Speech    | **95.14%** | 95.27       | 95.15 | 95.16     |
+| Text      | 76.08%     | 75.57       | 75.68 | 68.02     |
+| Concat    | **96.04%** | 96.08       | 96.02 | **96.04** |
+| Mean      | 90.28%     | 90.51       | 90.23 | 90.25     |
+| Multihead | 93.15%     | 93.27       | 93.18 | 93.21     |
+
+### Dataset distribution 
+
+| Language    | Modality   | Datasets Used                           | Train  | Val.   | Test   |
+| ----------- | ---------- | --------------------------------------- | ------ | ------ | ------ |
+| **Spanish** | Speech     | Spanish MEACorpus 2023                  | 3,692  | 410    | 1,027  |
+|             | Text       | Spanish MEACorpus 2023                  | 3,692  | 410    | 1,027  |
+|             | Multimodal | Spanish MEACorpus 2023                  | 3,692  | 410    | 1,027  |
+| **English** | Speech     | RAVDESS, TESS, SAVEE                    | 3,622  | 453    | 453    |
+|             | Text       | DAIR-AI Emotion, GoEmotion, ISEAR, MELD | 93,525 | 11,691 | 11,691 |
+|             | Multimodal | RAVDESS, TESS, SAVEE                    | 3,622  | 453    | 453    |
+
+
 
 ## Installation
 
@@ -118,6 +183,85 @@ speech-emotion \
   --language es \
   --mode concat \
   --model-config model.json
+```
+
+##  Using speech-emotion inside a Python script (without CLI)
+
+Besides the command-line interface, you can use the full API directly from Python. This is useful when integrating the system into larger pipelines, notebooks, or backend services.
+
+### Basic Example (Text Mode)
+
+```python
+from speech_emotion import predict_emotion
+
+emotion = predict_emotion(
+    text="I am very happy today",
+    language="en",
+    mode="text",
+    model_config_path="model.json"
+)
+
+print("Detected emotion:", emotion)
+```
+
+### Audio-only Example (Wav2Vec2-BERT)
+
+```python
+from speech_emotion import predict_emotion
+
+emotion = predict_emotion(
+    audio_path="audio.wav",
+    language="es",
+    mode="audio",
+    model_config_path="model.json"
+)
+
+print("Emotion:", emotion)
+```
+
+### Using Whisper transcription automatically (multimodal setting)
+
+```python
+from speech_emotion import predict_emotion
+
+emotion = predict_emotion(
+    audio_path="audio.wav",
+    language="en",
+    mode="concat",
+    model_config_path="model.json"
+)
+
+print(emotion)
+```
+
+### Minimal Script Template (You can include this in your repo)
+
+```
+# run_inference.py
+from speech_emotion import predict_emotion
+import argparse
+
+if __name__ == "__main__":
+    p = argparse.ArgumentParser()
+    p.add_argument("--audio")
+    p.add_argument("--text")
+    p.add_argument("--language", default="en")
+    p.add_argument("--mode", default="text")
+    p.add_argument("--device")
+    p.add_argument("--model-config", default="model.json")
+
+    args = p.parse_args()
+
+    emotion = predict_emotion(
+        audio_path=args.audio,
+        text=args.text,
+        language=args.language,
+        mode=args.mode,
+        device=args.device,
+        model_config_path=args.model_config
+    )
+
+    print("Emotion detected:", emotion)
 ```
 
 ## Model Configuration 
