@@ -153,9 +153,19 @@ def get_text_emotion(
             raise ValueError("For mode='text' you must provide either audio_path or text.")
         transcription = get_transcription(audio_path, device, language)
 
-    clf = pipeline("text-classification", model=model_id, device=device)
-    out = clf(transcription)
-    return out[0]["label"]
+    clf = pipeline("text-classification", model=model_id, device=device, return_all_scores=True)
+    outputs = clf(transcription)[0]  
+
+    scores = {o["label"]: float(o["score"]) for o in outputs}
+
+    # Top prediction
+    top = max(outputs, key=lambda x: x["score"])
+
+    return {
+        "top_label": top["label"],
+        "top_score": float(top["score"]),
+        "scores": scores
+    }
 
 
 # ---------- Solo audio (Wav2Vec2 + clasificación) ----------
@@ -213,10 +223,19 @@ def get_w2vbert_emotion(
 
     with torch.no_grad():
         logits = model(input_values, attention_mask=attention_mask).logits
-        pred_id = int(torch.argmax(logits, dim=1).cpu())
-        pred_label = id2label[pred_id]
+        probs = torch.softmax(logits, dim=-1)[0]
 
-    return pred_label
+    scores = {
+        id2label[i]: float(probs[i].cpu()) for i in range(len(probs))
+    }
+
+    pred_id = int(torch.argmax(probs).cpu())
+
+    return {
+        "top_label": id2label[pred_id],
+        "top_score": float(probs[pred_id].cpu()),
+        "scores": scores
+    }
 
 
 
@@ -309,10 +328,16 @@ def _generic_multimodal_emotion(
             attention_mask=attention_mask,
             sentence_embedding=sent_emb,
         ).logits
-        pred_id = int(torch.argmax(logits, dim=1).cpu())
-        pred_label = id2label[pred_id]
+        probs = torch.softmax(logits, dim=-1)[0]
+    
+    scores = {id2label[i]: float(probs[i].cpu()) for i in range(len(probs))}
+    pred_id = int(torch.argmax(probs).cpu())
 
-    return pred_label
+    return {
+        "top_label": id2label[pred_id],
+        "top_score": float(probs[pred_id].cpu()),
+        "scores": scores
+    }
 
 
 def get_w2vbert_bert_concat_emotion(
