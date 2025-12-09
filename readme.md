@@ -238,7 +238,7 @@ print(emotion)
 
 ```
 # run_inference.py
-from speech_emotion import predict_emotion
+from speech_emotion.inference import predict_emotion
 import argparse
 
 if __name__ == "__main__":
