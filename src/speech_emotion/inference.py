@@ -1,13 +1,13 @@
 from __future__ import annotations
 
+from typing import Dict, Tuple, Optional
+
 import torch
 import librosa
 from transformers import (
     AutoFeatureExtractor,
     AutoTokenizer,
     BertModel,
-    AutoModelForSpeechSeq2Seq,
-    AutoProcessor,
     pipeline,
 )
 from huggingface_hub import hf_hub_download
@@ -20,41 +20,77 @@ from .config import (
 )
 from .model_registry import get_default_model_id
 
-# ====== IMPORTS SEGÚN IDIOMA (carpeta models/) ======
-# models/wav2vec2_bert_es.py / wav2vec2_bert_en.py
-from .models.wav2vec2_bert_es import CustomAudioClassification as Wav2Vec2BertES
-from .models.wav2vec2_bert_en import CustomAudioClassification as Wav2Vec2BertEN
-
-# models/multimodal_es.py / multimodal_en.py
-from .models.multimodal_es import (
-    CustomAudioClassificationConcat as MultimodalConcatES,
-    CustomAudioClassificationMean as MultimodalMeanES,
-)
-from .models.multimodal_en import (
-    CustomAudioClassificationConcat as MultimodalConcatEN,
-    CustomAudioClassificationMean as MultimodalMeanEN,
-)
-
-# models/multimodal_multi_head_cross_attn_es.py / ..._en.py
-from .models.multimodal_multi_head_cross_attn_es import (
-    CustomAudioClassificationAttn as MultimodalAttnES,
-)
-from .models.multimodal_multi_head_cross_attn_en import (
-    CustomAudioClassificationAttn as MultimodalAttnEN,
-)
-
 import warnings
 warnings.filterwarnings("ignore")
 
 import transformers
 transformers.logging.set_verbosity_error()
+
 # ==================================================================
 #                            CACHES
 # ==================================================================
 
-_bert_cache: dict[tuple[str, str], tuple[BertModel, AutoTokenizer]] = {}
-_whisper_cache: dict[tuple[str, str], pipeline] = {}
+_bert_cache: Dict[Tuple[str, str], Tuple[BertModel, AutoTokenizer]] = {}
+_whisper_cache: Dict[Tuple[str, str], "pipeline"] = {}
 
+
+# ==================================================================
+#                      LAZY IMPORT HELPERS
+# ==================================================================
+
+def _lazy_import_whisper():
+    """
+    Importa los componentes de Whisper solo cuando se necesitan.
+    """
+    from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline as hf_pipeline
+    return AutoModelForSpeechSeq2Seq, AutoProcessor, hf_pipeline
+
+
+def _lazy_import_wav2vec_cls(language: str):
+    """
+    Importa la clase CustomAudioClassification de wav2vec2_bert_* de forma perezosa.
+    """
+    if language == "es":
+        from .models.wav2vec2_bert_es import CustomAudioClassification as Wav2Vec2BertES
+        return Wav2Vec2BertES
+    elif language == "en":
+        from .models.wav2vec2_bert_en import CustomAudioClassification as Wav2Vec2BertEN
+        return Wav2Vec2BertEN
+    else:
+        raise ValueError(f"Idioma no soportado para wav2vec2_bert: {language}")
+
+
+def _lazy_import_multimodal_cls(language: str, variant: str):
+    """
+    Importa las clases multimodales (Concat, Mean, MultiHeadAttn) de forma perezosa.
+    """
+    if language == "es":
+        if variant == "concat":
+            from .models.multimodal_es import CustomAudioClassificationConcat as MultimodalConcatES
+            return MultimodalConcatES
+        elif variant == "mean":
+            from .models.multimodal_es import CustomAudioClassificationMean as MultimodalMeanES
+            return MultimodalMeanES
+        elif variant == "multihead":
+            from .models.multimodal_multi_head_cross_attn_es import CustomAudioClassificationAttn as MultimodalAttnES
+            return MultimodalAttnES
+    elif language == "en":
+        if variant == "concat":
+            from .models.multimodal_en import CustomAudioClassificationConcat as MultimodalConcatEN
+            return MultimodalConcatEN
+        elif variant == "mean":
+            from .models.multimodal_en import CustomAudioClassificationMean as MultimodalMeanEN
+            return MultimodalMeanEN
+        elif variant == "multihead":
+            from .models.multimodal_multi_head_cross_attn_en import CustomAudioClassificationAttn as MultimodalAttnEN
+            return MultimodalAttnEN
+
+    raise ValueError(f"Idioma/variante no soportados para multimodal: language={language}, variant={variant}")
+
+
+# ==================================================================
+#                            BERT CACHE
+# ==================================================================
 
 def _get_bert(language: str, device: torch.device):
     """
@@ -75,20 +111,22 @@ def _get_whisper(device: torch.device, language: str):
     """
     key = (device.type, language)
     if key not in _whisper_cache:
+        AutoModelForSpeechSeq2Seq, AutoProcessor, hf_pipeline = _lazy_import_whisper()
+
         model = AutoModelForSpeechSeq2Seq.from_pretrained(
             DEFAULT_WHISPER_MODEL,
-            dtype=torch.float16 if device.type == "cuda" else torch.float32,
+            torch_dtype=torch.float16 if device.type == "cuda" else torch.float32,
             low_cpu_mem_usage=True,
             use_safetensors=True,
         ).to(device)
 
         processor = AutoProcessor.from_pretrained(DEFAULT_WHISPER_MODEL)
-        _whisper_cache[key] = pipeline(
+        _whisper_cache[key] = hf_pipeline(
             "automatic-speech-recognition",
             model=model,
             tokenizer=processor.tokenizer,
             feature_extractor=processor.feature_extractor,
-            dtype=torch.float16 if device.type == "cuda" else torch.float32,
+            torch_dtype=torch.float16 if device.type == "cuda" else torch.float32,
             device=device,
             generate_kwargs={"task": "transcribe", "language": language},
         )
@@ -135,16 +173,23 @@ def get_sentence_embedding(text: str, device: torch.device, language: str):
 
 def get_text_emotion(
     model_id: str,
-    audio_path: str | None,
-    text: str | None,
+    audio_path: Optional[str],
+    text: Optional[str],
     device: torch.device,
     language: str,
-) -> str:
+) -> dict:
     """
     Clasificación solo texto.
 
     - Si `text` no es None -> se usa directamente (NO se llama a Whisper).
     - Si `text` es None y hay `audio_path` -> se transcribe con Whisper.
+
+    Devuelve:
+        {
+            "top_label": str,
+            "top_score": float,
+            "scores": {label: prob, ...}
+        }
     """
     if text is not None:
         transcription = text
@@ -153,47 +198,49 @@ def get_text_emotion(
             raise ValueError("For mode='text' you must provide either audio_path or text.")
         transcription = get_transcription(audio_path, device, language)
 
-    clf = pipeline("text-classification", model=model_id, device=device, return_all_scores=True)
-    outputs = clf(transcription)[0]  
+    clf = pipeline(
+        "text-classification",
+        model=model_id,
+        device=device,
+        return_all_scores=True,
+    )
+
+    outputs = clf(transcription)[0]  # lista de dicts [{'label':..., 'score':...}, ...]
 
     scores = {o["label"]: float(o["score"]) for o in outputs}
-
-    # Top prediction
     top = max(outputs, key=lambda x: x["score"])
 
     return {
         "top_label": top["label"],
         "top_score": float(top["score"]),
-        "scores": scores
+        "scores": scores,
     }
 
 
 # ---------- Solo audio (Wav2Vec2 + clasificación) ----------
-
-def _get_wav2vec_cls(language: str):
-    """
-    Devuelve la clase CustomAudioClassification según idioma.
-    """
-    if language == "es":
-        return Wav2Vec2BertES
-    elif language == "en":
-        return Wav2Vec2BertEN
-    else:
-        raise ValueError(f"Idioma no soportado para wav2vec2_bert: {language}")
-
 
 def get_w2vbert_emotion(
     model_id: str,
     audio_path: str,
     device: torch.device,
     language: str,
-) -> str:
+) -> dict:
+    """
+    Clasificación solo audio (wav2vec2_bert_*).
+
+    Devuelve:
+        {
+            "top_label": str,
+            "top_score": float,
+            "scores": {label: prob, ...}
+        }
+    """
     label2id, id2label = get_label_maps(language)
 
-    audio_array, sr = librosa.load(audio_path, sr=16000)
+    audio_array, _ = librosa.load(audio_path, sr=16000)
     feature_extractor = AutoFeatureExtractor.from_pretrained(model_id)
 
-    ModelCls = _get_wav2vec_cls(language)
+    ModelCls = _lazy_import_wav2vec_cls(language)
     model = ModelCls.from_pretrained(
         model_id,
         num_labels=len(label2id),
@@ -228,30 +275,16 @@ def get_w2vbert_emotion(
     scores = {
         id2label[i]: float(probs[i].cpu()) for i in range(len(probs))
     }
-
     pred_id = int(torch.argmax(probs).cpu())
 
     return {
         "top_label": id2label[pred_id],
         "top_score": float(probs[pred_id].cpu()),
-        "scores": scores
+        "scores": scores,
     }
 
 
-
 # ---------- Multimodal (audio + texto) ----------
-
-def _get_multimodal_classes(language: str):
-    """
-    Devuelve las clases (Concat, Mean, MultiHeadAttn) según idioma.
-    """
-    if language == "es":
-        return MultimodalConcatES, MultimodalMeanES, MultimodalAttnES
-    elif language == "en":
-        return MultimodalConcatEN, MultimodalMeanEN, MultimodalAttnEN
-    else:
-        raise ValueError(f"Idioma no soportado para multimodal: {language}")
-
 
 def _generic_multimodal_emotion(
     model_id: str,
@@ -259,14 +292,21 @@ def _generic_multimodal_emotion(
     device: torch.device,
     language: str,
     variant: str,  # "concat" | "mean" | "multihead"
-    text: str | None = None,
-) -> str:
+    text: Optional[str] = None,
+) -> dict:
     """
     Multimodal (audio + texto).
 
     - Siempre requiere `audio_path`.
     - Si `text` no es None -> se usa como transcripción (NO se llama a Whisper).
     - Si `text` es None -> se usa Whisper para transcribir el audio.
+
+    Devuelve:
+        {
+            "top_label": str,
+            "top_score": float,
+            "scores": {label: prob, ...}
+        }
     """
     if audio_path is None:
         raise ValueError("Multimodal modes require an audio_path.")
@@ -285,16 +325,7 @@ def _generic_multimodal_emotion(
 
     feature_extractor = AutoFeatureExtractor.from_pretrained(model_id)
 
-    ConcatCls, MeanCls, AttnCls = _get_multimodal_classes(language)
-    if variant == "concat":
-        ModelCls = ConcatCls
-    elif variant == "mean":
-        ModelCls = MeanCls
-    elif variant == "multihead":
-        ModelCls = AttnCls
-    else:
-        raise ValueError(f"Variante multimodal no reconocida: {variant}")
-
+    ModelCls = _lazy_import_multimodal_cls(language, variant)
     model = ModelCls.from_pretrained(
         model_id,
         num_labels=len(label2id),
@@ -329,14 +360,16 @@ def _generic_multimodal_emotion(
             sentence_embedding=sent_emb,
         ).logits
         probs = torch.softmax(logits, dim=-1)[0]
-    
-    scores = {id2label[i]: float(probs[i].cpu()) for i in range(len(probs))}
+
+    scores = {
+        id2label[i]: float(probs[i].cpu()) for i in range(len(probs))
+    }
     pred_id = int(torch.argmax(probs).cpu())
 
     return {
         "top_label": id2label[pred_id],
         "top_score": float(probs[pred_id].cpu()),
-        "scores": scores
+        "scores": scores,
     }
 
 
@@ -345,8 +378,8 @@ def get_w2vbert_bert_concat_emotion(
     audio_path: str,
     device: torch.device,
     language: str,
-    text: str | None = None,
-) -> str:
+    text: Optional[str] = None,
+) -> dict:
     return _generic_multimodal_emotion(
         model_id=model_id,
         audio_path=audio_path,
@@ -362,8 +395,8 @@ def get_w2vbert_bert_mean_emotion(
     audio_path: str,
     device: torch.device,
     language: str,
-    text: str | None = None,
-) -> str:
+    text: Optional[str] = None,
+) -> dict:
     return _generic_multimodal_emotion(
         model_id=model_id,
         audio_path=audio_path,
@@ -379,8 +412,8 @@ def get_w2vbert_bert_multihead_emotion(
     audio_path: str,
     device: torch.device,
     language: str,
-    text: str | None = None,
-) -> str:
+    text: Optional[str] = None,
+) -> dict:
     return _generic_multimodal_emotion(
         model_id=model_id,
         audio_path=audio_path,
@@ -391,20 +424,19 @@ def get_w2vbert_bert_multihead_emotion(
     )
 
 
-
 # ==================================================================
 #                    API PRINCIPAL: predict_emotion
 # ==================================================================
 
 def predict_emotion(
-    audio_path: str | None = None,
-    text: str | None = None,
-    model_id: str | None = None,
+    audio_path: Optional[str] = None,
+    text: Optional[str] = None,
+    model_id: Optional[str] = None,
     mode: str = "text",          # "text" | "audio" | "concat" | "mean" | "multihead"
     language: str = "es",        # "es" | "en"
     device: str | torch.device | None = None,
-    model_config_path: str | None = None,
-) -> str:
+    model_config_path: Optional[str] = None,
+) -> dict:
     """
     API de alto nivel.
 
@@ -416,6 +448,13 @@ def predict_emotion(
         - pueden usar transcripción pasada en `text` para evitar Whisper.
     - mode="audio":
         - solo audio (wav2vec2_bert_*), ignora `text`.
+
+    Devuelve:
+        {
+            "top_label": str,
+            "top_score": float,
+            "scores": {label: prob, ...}
+        }
     """
     device = get_device(device)
     mode = mode.lower()
@@ -445,4 +484,3 @@ def predict_emotion(
         return get_w2vbert_bert_multihead_emotion(model_id, audio_path, device, language, text=text)
     else:
         raise ValueError(f"Modo no reconocido: {mode}")
-
