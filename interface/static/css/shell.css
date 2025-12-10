@@ -1,0 +1,247 @@
+/**
+ * Shell of our Progressive Web App
+ */
+ 
+/** Reset approach. All the elements behave as border-box */
+* {
+    box-sizing: border-box; 
+}
+
+
+/** Basic and general style */
+html, body {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    font-family: 'Nunito Sans', sans-serif;
+    font-weight: 400;
+    font-display: optional;
+    color: #444;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale; 
+    
+    
+}
+
+/** Avoid horizontal scrolling */
+html {
+    overflow-x: hidden;
+}
+
+
+/** The web app fits all the viewport */
+body {
+    background-color: #fff;
+}
+
+h1 small {
+    display: block;
+    font-weight: 300;
+}
+
+.header {
+    height: 3rem;
+    color: white;
+    background-color: #2bcfd9;
+    color: #003b46;
+    font-size: 20px;
+    padding: 0 1rem;
+    max-width: 26rem;
+    margin: 0 auto;
+ }
+
+.header__title {
+    margin: 0;
+    max-width: calc(100% - 2rem);
+    font-weight: 400;
+    font-size: 1.5rem;
+    line-height: 3rem;
+    text-align: center;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+
+/** Loader */
+.loader {
+    left: 50%;
+    top: 50%;
+    position: fixed;
+    
+    -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%); 
+}
+
+.loader #spinner {
+    box-sizing: border-box;
+    stroke: #673AB7;
+    stroke-width: 3px;
+    -webkit-transform-origin: 50%;
+            transform-origin: 50%;
+    -webkit-animation: line 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite, rotate 1.6s linear infinite;
+            animation: line 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite, rotate 1.6s linear infinite; 
+}
+
+@-webkit-keyframes rotate {
+  from { -webkit-transform: rotate(0); transform: rotate(0); }
+  to   { -webkit-transform: rotate(450deg); transform: rotate(450deg); } }
+
+@keyframes rotate {
+  from { -webkit-transform: rotate(0); transform: rotate(0); }
+  to   { -webkit-transform: rotate(450deg); transform: rotate(450deg); } }
+
+@-webkit-keyframes line {
+  0%   { stroke-dasharray: 2, 85.964; -webkit-transform: rotate(0); transform: rotate(0); }
+  50%  { stroke-dasharray: 65.973, 21.9911; stroke-dashoffset: 0; }
+  100% { stroke-dasharray: 2, 85.964; stroke-dashoffset: -65.973; -webkit-transform: rotate(90deg); transform: rotate(90deg); } }
+
+@keyframes line {
+  0%   {stroke-dasharray: 2, 85.964; -webkit-transform: rotate(0); transform: rotate(0); }
+  50%  {stroke-dasharray: 65.973, 21.9911; stroke-dashoffset: 0; }
+  100% {stroke-dasharray: 2, 85.964; stroke-dashoffset: -65.973; -webkit-transform: rotate(90deg); transform: rotate(90deg); } }
+  
+.menu-action {
+    position: fixed;
+    top: .5rem;
+    right: .5rem;
+    z-index: 1000;
+    color: white;
+    line-height: 1;
+    font-size: 2rem;
+    transition: all .3s ease-out;
+}
+
+#menu-action-toggle {
+    display: none;
+}
+
+.menu-action > span {
+    border: none;
+    color: white;
+    font-size: 1.25rem;
+    line-height: 2rem;
+    outline: none;
+    cursor: pointer;
+    background: #aa2c63;
+    width: 2rem;
+    height: 2rem;
+    text-align: center;
+    border-radius: 100%;
+}
+
+
+nav {
+    display: block;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: calc(100% + 1rem);
+    width: 20rem;
+    z-index: 1000;
+    transition: all .3s ease-out;
+    background-color: #333;
+    box-shadow: 0 0 1rem black;
+}
+
+nav h3 {
+    margin: 0;
+    padding: 0.75rem 0;
+    text-align: center;
+    line-height: 1.2;
+    color: #333;
+    background-color: white;
+}
+
+nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+nav li {
+    display: block;
+}
+
+nav a {
+position: relative;
+    display: block;
+    padding: 1rem 0 .7rem 4rem;
+    text-align: left;
+    color: white;
+    text-decoration: none;
+    text-transform: uppercase;
+    line-height: 1.2;
+    font-weight: bold;
+    background-color: #0074a3;
+}
+
+nav a i {
+    position: absolute;
+    left: 1rem;
+    font-size: 1.5rem;
+    line-height: 1;
+    top: 50%;
+    margin-top: -0.75rem;
+}
+
+nav li a {
+    background-color: #0074A3;
+}
+
+nav li + li a {
+    background-color: #3E73AF;
+}
+
+nav li + li + li a {
+    background-color: #6770B4;
+}
+
+nav li + li + li + li a {
+    background-color: #8D6AB1;
+}
+
+nav li + li + li + li + li a {
+    background-color: #AD63A6;
+}
+
+nav a:hover {
+    background-color: #e99b26;
+    color: white;
+}
+
+#menu-action-toggle:checked + .menu-action {
+    transform: rotate(90deg);
+}
+
+#menu-action-toggle:checked ~ nav {
+    left: 0;
+}
+
+  
+/** Main content */
+.main {
+    padding: 1rem;
+    background-color: white;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; 
+    max-width: 26rem;
+    margin: 0 auto;
+    
+    transform: opacity;
+    
+}
+
+.main.state-offline:before {
+    content: "OFFLINE";
+    position: fixed;
+    right: .5rem;
+    top: .5rem;
+    background-color: #FF4136;
+    text-align: center;
+    color: white;
+    padding: .5rem;
+    z-index: 5000;
+}

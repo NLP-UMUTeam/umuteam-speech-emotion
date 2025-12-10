@@ -1,0 +1,157 @@
+header {
+    background-color: #8D1300;
+    color: white;
+    padding: 1rem 0;
+    margin: 0 0 1rem 0;
+}
+
+header h1 {
+    color: #fff;
+    max-width: 80rem;
+    margin: 0 auto;
+}
+
+header h1 small {
+    color: white;
+}
+
+main {
+    max-width: 80rem;
+    margin: 0 auto;
+}
+
+label {
+    display: block;
+}
+
+fieldset {
+    margin: 0 0 1rem 0;
+}
+
+textarea {
+    display: block;
+    width: 100%;
+    height: 7.5rem;
+}
+
+#play {
+    cursor: pointer;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 100%;
+    border: none;
+    outline: none;
+    background-color: #a82c6f;
+    margin-left: 1rem;
+}
+
+#play.recording-state {
+    animation-name: pulse;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@keyframes pulse {
+    0% {box-shadow: 0px 0px 5px 0px rgba(173,0,0,.3);}
+    65%{box-shadow: 0px 0px 5px 13px rgba(173,0,0,.3);}
+    90%{box-shadow: 0px 0px 5px 13px rgba(173,0,0,0);}
+}
+
+button[type="submit"] {
+    cursor: pointer;
+    background-color: #333;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 1rem auto;
+    display: block;
+}
+
+button[type="submit"]:hover {
+    outline: 1px solid black;
+}
+
+.results .title {
+    font-weight: bold;
+}
+
+.emotion-bar {
+    display: inline-block;
+    vertical-align: top;
+}
+
+progress[value] {
+    -webkit-appearance: none;
+    appearance: none;  
+    display: block;
+    position: relative;
+    max-width: 30rem;
+    height: 2rem;
+    margin: 0 0 .75rem 0;
+    background: #ccc;
+    width: 7rem;
+}
+
+progress[value]::-webkit-progress-value {
+    position: relative;
+}
+
+progress[value]::-webkit-progress-value::before {
+    content: "test";
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: black;
+}
+
+progress[value]::progress-bar {
+    background-color: #eee;
+    border-radius: 2px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+}
+
+progress[value].anger::-webkit-progress-value {
+    background-color: #ff7279;
+}
+
+progress[value].sadness::-webkit-progress-value {
+    background-color: #49c7ff;
+}
+
+progress[value].disgust::-webkit-progress-value {
+    background-color: #00b67c;
+}
+
+progress[value].joy::-webkit-progress-value {
+    background-color: #f9f871;
+}
+
+progress[value].neutral::-webkit-progress-value {
+    background-color: #9aaebb;
+}
+
+progress[value].fear::-webkit-progress-value {
+    background-color: #374955;
+}
+
+#drop-zone {
+    border: 1px dashed #999;
+    border-radius: .5rem;
+    padding: 1.25rem;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+#drop-zone p {
+    text-align: center;
+}
+
+#drop-zone.dragover {
+    background: #f0f8ff;
+    border-color: #007bff;
+}
