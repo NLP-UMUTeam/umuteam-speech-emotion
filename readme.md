@@ -344,7 +344,14 @@ speech_emotion/
 ```
 
 ## Interface
+A web interface has been developed using FlaskAPI. This interface is located under the folder ```interface```
+
+To start the interface, run (adjusting the port to your server)
+
 ```
 cd interface
 uvicorn server:app --host 0.0.0.0 --port 9999 --reload
 ```
+
+A screen capture of the interface is shown below:
+![gui](figures/gui.png)
