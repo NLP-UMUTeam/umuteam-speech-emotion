@@ -3,15 +3,25 @@
 `speech-emotion` is a lightweight Python package for emotion recognition from audio and text.  
 It supports Spanish (`es`) and English (`en`) and provides several inference modes:
 
+## Authors
+
+- **Ronghao Pan** — University of Murcia  
+  [Google Scholar](https://scholar.google.com/citations?user=80lntLMAAAAJ) · [ORCID](https://orcid.org/0009-0008-7317-7145)
+
+- **José Antonio García-Díaz** — University of Murcia  
+  [Google Scholar](https://scholar.google.com/citations?user=ek7NIYUAAAAJ) · [ORCID](https://orcid.org/0000-0002-3651-2660)
+
+- **Rafael Valencia-García** — University of Murcia  
+  [Google Scholar](https://scholar.google.com/citations?user=GLpBPNMAAAAJ) · [ORCID](https://orcid.org/0000-0003-2457-1791)  
+
+
+## Architecture
 - **text** – Whisper transcription + text classifier  
 - **audio** – Wav2Vec2-BERT audio classifier  
 - **concat** – Multimodal fusion (audio + text) by concatenation  
 - **mean** – Multimodal fusion by mean  
 - **multihead** – Multimodal fusion using multi-head cross-attention  
-
 ![architecture](figures/architecture.png)
-
-
 
 ## UMUTeam Models – Training Details & Performance
 
