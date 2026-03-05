@@ -36,6 +36,19 @@ All models were trained by UMUTeam using multilingual and multimodal corpora. Be
 - Text-only
 - Multimodal
 
+*Emotion class distribution for the Spanish datasets used in training, validation, and test splits. Labels correspond to the unified six-class taxonomy: anger, disgust, fear, joy, neutral, and sadness. For Spanish, the text and audio modalities share the same dataset splits and emotion label distribution, as both modalities are derived from the same corpus.
+
+| Emotion   | Text/Speech Train | Text/Speech Val | Text/Speech Test |
+| --------- | -----------: | ---------: | ----------: |
+| Anger     |          481 |         53 |         134 |
+| Disgust   |          864 |         96 |         240 |
+| Fear      |           26 |          3 |           8 |
+| Joy       |          463 |         51 |         129 |
+| Neutral   |         1440 |        160 |         399 |
+| Sadness   |          418 |         47 |         117 |
+| **Total** |     **3692** |    **410** |    **1027** |
+
+
 #### Test Performance
 
 | Mode      | Acc.       | W-Precision | W-F1  | Macro-F1  |
@@ -62,6 +75,20 @@ Merged and normalized:
 - **GoEmotion**
 - **ISEAR**
 - **MELD**
+
+Emotion class distribution for the English datasets used in training, validation, and test splits
+
+| Emotion   | Text Train |   Text Val |  Text Test | Speech Train | Speech Val | Speech Test |
+| --------- | ---------: | ---------: | ---------: | -----------: | ---------: | ----------: |
+| Angry     |      9,763 |      1,221 |      1,220 |          522 |         65 |          65 |
+| Disgust   |      4,814 |        601 |        602 |          521 |         66 |          65 |
+| Fear      |      5,225 |        653 |        653 |          521 |         65 |          66 |
+| Happy     |     12,906 |      1,613 |      1,614 |          522 |         65 |          65 |
+| Neutral   |     45,243 |      5,656 |      5,655 |          493 |         61 |          62 |
+| Sad       |     10,644 |      1,330 |      1,331 |          521 |         66 |          65 |
+| Surprise  |      4,930 |        617 |        616 |          522 |         65 |          65 |
+| **Total** | **93,525** | **11,691** | **11,691** |    **3,622** |    **453** |     **453** |
+
 
 #### Test Performance
 
