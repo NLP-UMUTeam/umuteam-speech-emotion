@@ -395,3 +395,8 @@ speech_emotion/
 
 ```
 
+## Acknowledgments
+This work is part of the research project LaTe4PoliticES (PID2022-138099OB-I00) funded by MICIU/AEI/10.13039/501100011033 and the European Regional Development Fund (ERDF/EU - FEDER/UE)-a way of making Europe. Mr. Tomás Bernal-Beltrán is supported by University of Murcia through the predoctoral programme.
+
+## Citation
+Pending
