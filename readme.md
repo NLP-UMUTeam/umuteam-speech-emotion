@@ -1,5 +1,19 @@
 # Speech Emotion
 
+<p align="center">
+  <img src="figures/logo-umuteam.png" height="60"/>
+  <img src="figures/MICIU+Cofinanciado+AEI.jpg" height="60"/>
+</p>
+
+<p align="center">
+  <a href="https://twitter.com/UMUTeam">
+    <img src="https://img.shields.io/badge/Twitter-UMUTeam-1DA1F2?logo=twitter"/>
+  </a>
+  <a href="https://huggingface.co/UMUTeam">
+    <img src="https://img.shields.io/badge/HuggingFace-UMUTeam-yellow?logo=huggingface"/>
+  </a>
+</p>
+
 `speech-emotion` is a lightweight Python package for emotion recognition from audio and text.  
 It supports Spanish (`es`) and English (`en`) and provides several inference modes:
 
