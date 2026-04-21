@@ -1,7 +1,7 @@
 # Speech Emotion
 
 <p align="center">
-  <img src="figures/logo-umuteam.png" height="90"/>
+  <img src="figures/logo-umuteam.png" height="120"/>
 </p>
 
 <p align="center">
