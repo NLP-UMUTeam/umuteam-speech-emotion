@@ -22,6 +22,9 @@ It supports Spanish (`es`) and English (`en`) and provides several inference mod
 - **Ronghao Pan** — University of Murcia  
   [Google Scholar](https://scholar.google.com/citations?user=80lntLMAAAAJ) · [ORCID](https://orcid.org/0009-0008-7317-7145)
 
+- **Tomás Bernal-Beltrán** — University of Murcia  
+  [Google Scholar](https://scholar.google.com/citations?user=0bTUxQEAAAAJ) · [ORCID](0009-0006-6971-1435)
+
 - **José Antonio García-Díaz** — University of Murcia  
   [Google Scholar](https://scholar.google.com/citations?user=ek7NIYUAAAAJ) · [ORCID](https://orcid.org/0000-0002-3651-2660)
 
