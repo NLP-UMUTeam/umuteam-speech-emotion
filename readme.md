@@ -1,8 +1,8 @@
 # Speech Emotion
 
 <p align="center">
-  <img src="figures/logo-umuteam.png" height="60"/>
-  <img src="figures/MICIU+Cofinanciado+AEI.jpg" height="60"/>
+  <img src="figures/logo-umuteam.png" height="75"/>
+  <img src="figures/MICIU+Cofinanciado+AEI.jpg" height="75"/>
 </p>
 
 <p align="center">
