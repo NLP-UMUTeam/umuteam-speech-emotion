@@ -1,13 +1,12 @@
 # Speech Emotion
 
 <p align="center">
-  <img src="figures/logo-umuteam.png" height="75"/>
-  <img src="figures/MICIU+Cofinanciado+AEI.jpg" height="75"/>
+  <img src="figures/logo-umuteam.png" height="90"/>
 </p>
 
 <p align="center">
-  <a href="https://twitter.com/UMUTeam">
-    <img src="https://img.shields.io/badge/Twitter-UMUTeam-1DA1F2?logo=twitter"/>
+  <a href="https://x.com/UMUTeam">
+    <img src="https://img.shields.io/badge/X-UMUTeam-black?logo=x&logoColor=white"/>
   </a>
   <a href="https://huggingface.co/UMUTeam">
     <img src="https://img.shields.io/badge/HuggingFace-UMUTeam-yellow?logo=huggingface"/>
@@ -23,7 +22,7 @@ It supports Spanish (`es`) and English (`en`) and provides several inference mod
   [Google Scholar](https://scholar.google.com/citations?user=80lntLMAAAAJ) · [ORCID](https://orcid.org/0009-0008-7317-7145)
 
 - **Tomás Bernal-Beltrán** — University of Murcia  
-  [Google Scholar](https://scholar.google.com/citations?user=0bTUxQEAAAAJ) · [ORCID](0009-0006-6971-1435)
+  [Google Scholar](https://scholar.google.com/citations?user=0bTUxQEAAAAJ) · [ORCID](0009-0006-6971-1435    )
 
 - **José Antonio García-Díaz** — University of Murcia  
   [Google Scholar](https://scholar.google.com/citations?user=ek7NIYUAAAAJ) · [ORCID](https://orcid.org/0000-0002-3651-2660)
@@ -412,8 +411,12 @@ speech_emotion/
 
 ```
 
-## Acknowledgments
+## Funding
 This work is part of the research project LaTe4PoliticES (PID2022-138099OB-I00) funded by MICIU/AEI/10.13039/501100011033 and the European Regional Development Fund (ERDF/EU - FEDER/UE)-a way of making Europe. Mr. Tomás Bernal-Beltrán is supported by University of Murcia through the predoctoral programme.
+
+<p align="center">
+  <img src="figures/MICIU+Cofinanciado+AEI.jpg" height="90"/>
+</p>
 
 ## Citation
 Pending
