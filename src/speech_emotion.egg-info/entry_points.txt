@@ -1,2 +1,0 @@
-[console_scripts]
-speech-emotion = speech_emotion.cli:main
