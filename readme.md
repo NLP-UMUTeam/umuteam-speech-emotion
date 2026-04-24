@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://x.com/UMUTeam">
+  <a href="[https://x.com/UMUTeam](https://x.com/NLP_umuteam)">
     <img src="https://img.shields.io/badge/X-UMUTeam-black?logo=x&logoColor=white"/>
   </a>
   <a href="https://huggingface.co/UMUTeam">
