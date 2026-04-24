@@ -155,3 +155,13 @@ progress[value].fear::-webkit-progress-value {
     background: #f0f8ff;
     border-color: #007bff;
 }
+
+footer {
+    text-align: center;
+    max-width: 50rem;
+    margin: auto;
+}
+
+footer img {
+    width: 100%;
+}
