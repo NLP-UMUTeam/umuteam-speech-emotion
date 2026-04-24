@@ -9,6 +9,10 @@ header h1 {
     color: #fff;
     max-width: 80rem;
     margin: 0 auto;
+    background-image: url(/static/figures/umuteam.png);
+    background-repeat: no-repeat;
+    background-size: 5rem;
+    background-position: right;
 }
 
 header h1 small {
