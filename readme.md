@@ -419,4 +419,18 @@ This work is part of the research project LaTe4PoliticES (PID2022-138099OB-I00) 
 </p>
 
 ## Citation
-Pending
+```
+@article{PAN2026102677,
+title = {speech-emotion: A multilingual and multimodal toolkit for emotion recognition from speech},
+journal = {SoftwareX},
+volume = {34},
+pages = {102677},
+year = {2026},
+issn = {2352-7110},
+doi = {https://doi.org/10.1016/j.softx.2026.102677},
+url = {https://www.sciencedirect.com/science/article/pii/S235271102600169X},
+author = {Ronghao Pan and Tomás Bernal-Beltrán and José Antonio García-Díaz and Rafael Valencia-García},
+keywords = {Speech emotion recognition, Multimodal emotion analysis, Transformer models, Open-source software, Multilingual models},
+abstract = {speech-emotion is an open-source Python toolkit for multilingual and multimodal emotion recognition from speech. The framework integrates speech processing, text encoding, and fusion mechanisms within a unified, modular, and reproducible architecture. It supports emotion analysis from audio-only, text-only, or combined inputs, enabling flexible research and applied workflows in affective computing and human–machine interaction. The toolkit provides configurable fusion strategies, language-specific models for Spanish and English, and multiple user interfaces (Python API, CLI, and Web UI). Experimental evaluation on benchmark datasets demonstrates robust performance across modalities. By releasing pretrained models and training scripts, the toolkit promotes reproducibility and extensibility in multimodal emotion recognition research.}
+}
+```
